@@ -32,7 +32,7 @@ RUN bunx prisma generate
 # RUN bun run build:scripts:prod
 # RUN bun run build:css:prod
 
-RUN bun build
+RUN bun run build
 
 # CMD ["bun", "src/index.tsx"]
 # CMD ["node", "dist/server/entry.mjs"]
