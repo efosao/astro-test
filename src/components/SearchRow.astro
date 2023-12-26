@@ -1,0 +1,213 @@
+---
+// import { Transition } from "@headlessui/react";
+// import { Link, useLocation } from "@remix-run/react";
+import cx from "classnames";
+/* @ts-ignore */
+import initialism from "initialism";
+// import { useEffect, useState } from "react";
+// import { GiPin } from "react-icons/gi";
+// import { genPostUrl } from "lib/url";
+// import type { PostResult } from "../models/post";
+// import { AstroJSX } from "astro/jsx-runtime";
+
+// type SearchRowType = {
+//   alreadyApplied?: boolean;
+//   className?: string;
+//   color: string;
+//   disableClickToggle?: boolean;
+//   forceOpen?: boolean;
+//   post: PostResult;
+//   selectedTags?: string[];
+//   toggleTag?: (tag: string) => void;
+// };
+
+const { post } = Astro.props;
+const color = "";
+const disableClickToggle = false;
+const alreadyApplied = false;
+const tagButtons = [];
+
+const companyName = post.company?.name || post.company_name;
+const companyWordCount = companyName.split(" ").length;
+const initialsLength = Math.min(companyWordCount, 3);
+// const tagButtons = (post.tags || []).map((tag) => {
+//   const handleClick = (e: any) => {
+//     e.stopPropagation();
+//     toggleTag && toggleTag(tag);
+//   };
+//   const isSelected = selectedTags.includes(tag);
+//     return (
+//       <button
+//         class={cx("row-tag", { selected: isSelected })}
+//         key={tag}
+//         type="button"
+//         _="on click halt"
+//       >
+//         {tag}
+//       </button>
+//     );
+//   });
+
+type DetailMetadataType = {
+  apply_options: {
+    link: string;
+    title: string;
+  }[];
+} | null;
+
+const isRemote =
+  post.tags.includes("remote") || post.location?.toLowerCase() === "anywhere";
+const applyOptions = (post.details_metadata as DetailMetadataType)
+  ?.apply_options;
+// const applySection = applyOptions && applyOptions?.length > 0 && (
+//   <>
+//     {applyOptions.map(({ link, title }) => (
+//       <a
+//         class="inline-block bg-blue-100 p-2 m-1 rounded-lg font-medium text-center"
+//         href={link}
+//         onclick="utils.preventBubbling(event)"
+//         rel="noreferrer"
+//         target="_blank"
+//       >
+//         {title}
+//       </a>
+//     ))}
+//   </>
+// );
+
+// const postLink = genPostUrl(post);
+// const heading = (
+//   <>
+//     {companyName} is looking for a <span class="font-bold">{post.title}</span>
+//   </>
+// );
+
+let thumbnail = post.thumbnail;
+if (post.company?.id) {
+  thumbnail = `/images/company-logo/${post.company.id}.png`;
+}
+
+// const highlight = !!(color === "yellow" || post.pinned_until);
+const highlight = undefined;
+// const applyUrl = post.company?.id
+//   ? `/p/apply/${post.id}`
+//   : `/apply/${post.id}`;
+const applyUrl = `/p/apply/${post.id}`;
+const isExternalApplyLink = !post.company?.id;
+const htmxIndicatorId = `htmx-indicator-${post.id}`;
+const descriptionId = `description-${post.id}`;
+const checkboxId = `checkbox-${post.id}`;
+const loadDescEventName = `load-desc-${post.id}`;
+---
+
+<div
+  class={cx(
+    "search_row group relative rounded-md bg-white mb-2 dark:bg-slate-700 dark:text-white dark:border-slate-600",
+    { "border-flush-orange-900": !color },
+    {
+      "border-flush-orange-200 bg-yellow-100 group-open:bg-yellow-200":
+        highlight
+    },
+    {
+      "hover:bg-yellow-200 hover:bg-opacity-70 hover:border-yellow-300":
+        highlight && !disableClickToggle
+    }
+  )}
+  _={`on click toggle [@checked] on #${checkboxId} then trigger "${loadDescEventName}"`}
+>
+  <!-- {highlight && (
+        <GiPin class="absolute top-[-8px] right-[-8px] text-red-400 h-6 w-6" />
+      )} -->
+  <div class="cursor-pointer">
+    <div class={cx("px-4 flex items-center space-x-2 h-28")}>
+      <span
+        class="inline-flex items-center justify-center overflow-hidden w-[60px] shrink-0"
+      >
+        {/* {thumbnail && !showInitials ? ( */}
+        {
+          thumbnail ? (
+            <span class="flex shadow-sm">
+              <img
+                alt={`${companyName} logo`}
+                class="overflow-hidden"
+                loading="lazy"
+                src={thumbnail}
+              />
+            </span>
+          ) : (
+            <span class={cx("initials")}>
+              {initialism(
+                companyName
+                  .replace(/\([^)]*\)|-()(?=\s|$)/g, "")
+                  .replace(/[^a-zA-Z0-9\s]/g, ""),
+                initialsLength
+              )}
+            </span>
+          )
+        }
+      </span>
+      <div class="flex flex-col grow">
+        <p class="opacity-60 font-semibold line-clamp-1 lg:line-clamp-2">
+          {companyName}
+        </p>
+
+        <p class="font-bold line-clamp-1 md:line-clamp-2">
+          {post.title}
+        </p>
+
+        <p>
+          {
+            isRemote ? (
+              <span class="italic">
+                Remote&nbsp;
+                {post.location && (
+                  <span class="text-gray-400">({post.location.trim()})</span>
+                )}
+              </span>
+            ) : (
+              <span class="italic">{post.location}</span>
+            )
+          }
+        </p>
+      </div>
+      <div class="tag-container">{tagButtons}</div>
+      <span class="m-2">{post.published_at_display}</span>
+      {
+        alreadyApplied ? (
+          <span class="btn-apply done">Applied</span>
+        ) : (
+          <a
+            class="btn-apply"
+            onclick="utils.preventBubbling(event)"
+            href={applyUrl}
+            target={isExternalApplyLink ? "_blank" : undefined}
+            _="on click halt"
+          >
+            <span>Apply</span>
+          </a>
+        )
+      }
+    </div>
+  </div>
+
+  <div _="on click halt">
+    <input class="hidden peer" type="checkbox" id={checkboxId} />
+    <div class="hidden justify-center items-center peer-checked:flex">
+      <div
+        class="justify-center items-center peer-checked:flex"
+        hx-get={`/partials/post-desc-${post.id}`}
+        hx-indicator={`#${htmxIndicatorId}`}
+        hx-swap="outerHTML"
+        hx-trigger={`${loadDescEventName} from:body`}
+        id={descriptionId}
+      >
+        <img
+          alt="loading"
+          id={htmxIndicatorId}
+          class="htmx-indicator h-8"
+          src="/pacman-loader.svg"
+        />
+      </div>
+    </div>
+  </div>
+</div>

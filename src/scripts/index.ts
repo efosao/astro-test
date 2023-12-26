@@ -44,6 +44,10 @@ const utils = {
     }
 
     // window.location.reload();
+  },
+
+  preventBubbling: (e: any) => {
+    e.stopPropagation();
   }
 };
 

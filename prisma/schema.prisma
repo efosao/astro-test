@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                        String                @id @default(cuid())
+  firebase_uid              String                @unique
+  email                     String                @unique
+  email_verified            Boolean               @default(false)
+  full_name                 String?
+  bio                       String?
+  photo_url                 String?
+  profile_image_resource_id String?
+  org_name                  String?
+  metadata                  Json?
+  notes                     Note[]
+  password                  Password?
+  role                      Role                  @default(WORKER)
+  is_admin                  Boolean               @default(false)
+  onboarded_at              DateTime?
+  resources                 UserResource[]
+  companies                 Company[]
+  created_at                DateTime              @default(now())
+  updated_at                DateTime              @updatedAt
+  post_checkout_sessions    PostCheckoutSession[]
+  JobApplications           JobApplications[]
+
+  @@map("users")
+}
+
+enum Role {
+  WORKER
+  HIRING
+}
+
+model Password {
+  hash   String
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password")
+}
+
+model UserResource {
+  id         String           @id @default(cuid())
+  data       Bytes
+  type       UserResourceType
+  userId     String?
+  user       User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  created_at DateTime         @default(now())
+  updated_at DateTime         @updatedAt
+
+  @@map("user_resources")
+}
+
+enum UserResourceType {
+  PROFILE_PHOTO
+  RESUME_UPLOAD
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  logo_data   Bytes?
+  website_url String?
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  Post        Post[]
+
+  @@index([id], type: BTree)
+  @@index([userId], type: BTree)
+  @@map("companies")
+}
+
+model PostCheckoutSession {
+  id                      String   @id @default(cuid())
+  post_id                 String
+  post                    Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  line_items              Json[]
+  order_total             Decimal
+  user_id                 String?
+  email                   String?
+  post_duration_in_days   Int      @default(0)
+  pinned_duration_in_days Int      @default(0)
+  user                    User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  session_status          String
+  session_data            Json?
+  status                  String
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
+
+  @@map("post_checkout_sessions")
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("note")
+}
+
+model log {
+  id           Int      @id(map: "logs_pkey") @default(autoincrement())
+  msg          String
+  date_created DateTime @default(now()) @db.Date
+}
+
+model Post {
+  id                     String                @id @default(cuid())
+  external_id            String?               @default(dbgenerated("gen_random_uuid()"))
+  title                  String
+  description            String
+  company_name           String
+  company_id             String?
+  company                Company?              @relation(fields: [company_id], references: [id])
+  location               String?
+  post_source            String?
+  thumbnail              String?
+  tags                   String[]              @default([])
+  metadata               Json?
+  details_metadata       Json?
+  created_at             DateTime              @default(now()) @db.Timestamp
+  updated_at             DateTime              @updatedAt @db.Timestamptz(6)
+  publish_until          DateTime?
+  pinned_until           DateTime?
+  published_at           DateTime?
+  data_source            String?
+  created_by_user_id     String?
+  state                  String?               @default("NEW")
+  post_checkout_sessions PostCheckoutSession[]
+  JobApplications        JobApplications[]
+
+  @@unique([external_id, data_source])
+  @@index([id], type: BTree)
+  @@index([created_by_user_id], type: BTree)
+  @@index([tags], type: Gin)
+  @@map("posts")
+}
+
+model JobApplications {
+  id                String   @id @default(cuid())
+  post_id           String
+  post              Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  user_id           String?
+  user              User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  full_name         String?
+  email             String?
+  phone_number      String?
+  resume_text       String?
+  resume_upload     Bytes?
+  is_email_verified Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  @@map("job_applications")
+}
+
+model serp_google_jobs_import {
+  id               Int       @default(autoincrement())
+  external_id      String    @id
+  q                String?
+  raw_data         Json?
+  start_index      Int?
+  jobs_count       Int?
+  detail_records   Json?
+  details_complete Boolean?  @default(false)
+  date_created     DateTime? @default(now()) @db.Timestamp(6)
+  date_imported    DateTime? @db.Timestamp(6)
+  date_updated     DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model timers {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  targetDate DateTime @db.Timestamptz(6)
+  createDate DateTime @default(now()) @db.Timestamptz(6)
+  updateDate DateTime @default(now()) @db.Timestamp(6)
+  enabled    Boolean  @default(true)
+}

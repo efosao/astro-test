@@ -12,15 +12,29 @@
   "dependencies": {
     "@astrojs/node": "^7.0.2",
     "@astrojs/tailwind": "^5.0.4",
+    "@prisma/client": "^5.7.1",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "astro": "^4.0.7",
+    "bcryptjs": "^2.4.3",
+    "cache": "^3.0.0",
+    "cache-manager": "^5.3.2",
     "classnames": "^2.3.3",
+    "dayjs": "^1.11.10",
+    "firebase": "^10.7.1",
     "htmx.org": "^1.9.10",
     "hyperscript.org": "^0.9.12",
-    "tailwindcss": "^3.4.0"
+    "initialism": "^1.0.4",
+    "postmark": "^4.0.2",
+    "prisma": "^5.7.1",
+    "showdown": "^2.1.0",
+    "stripe": "^14.10.0",
+    "tailwindcss": "^3.4.0",
+    "url-slug": "^4.0.1",
+    "xss": "^1.0.14"
   },
   "devDependencies": {
+    "@types/node": "^20.10.5",
     "postcss-import": "^15.1.0"
   }
 }

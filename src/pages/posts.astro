@@ -1,0 +1,16 @@
+---
+import SearchRow from "components/SearchRow.astro";
+import type { PostDetails } from "models/post";
+import { getPublishedPosts } from "../models/post";
+import Layout from "layouts/Layout.astro";
+
+type PostsProps = {
+  posts: (PostDetails & { url: string })[];
+};
+
+const posts = await getPublishedPosts({ take: 10, skip: 0 });
+---
+
+<Layout title="Job Posts">
+  {posts.map((post) => <SearchRow color="white" post={post} />)}
+</Layout>
