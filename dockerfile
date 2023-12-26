@@ -37,8 +37,8 @@ RUN bun run build
 # CMD ["bun", "src/index.tsx"]
 # CMD ["node", "dist/server/entry.mjs"]
 
-# EXPOSE 80
+ENV PORT=5000
 
-ENV PORT=80
+EXPOSE 5000
 
 CMD node ./dist/server/entry.mjs
