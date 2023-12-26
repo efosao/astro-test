@@ -7,14 +7,17 @@ COPY package.json ./
 
 FROM base AS prod-deps
 RUN npm install --production
+COPY prisma ./prisma
+RUN npx prisma generate
 
 FROM base AS build-deps
 RUN npm install --production=false
-RUN npx prisma generate
 
 FROM build-deps AS build
 COPY . .
 RUN npm run build
+COPY prisma ./prisma
+RUN npx prisma generate
 
 FROM base AS runtime
 COPY --from=prod-deps /app/node_modules ./node_modules
