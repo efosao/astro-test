@@ -9,5 +9,8 @@ export default defineConfig({
   adapter: node({
     mode: "standalone"
   }),
+  server: {
+    port: process.env.PORT || 3000,
+  },
   integrations: [tailwind()]
 });

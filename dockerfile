@@ -39,6 +39,6 @@ RUN bun run build
 
 # EXPOSE 80
 
-ENV PORT=4321
-EXPOSE 4321
+ENV PORT=5000
+EXPOSE $PORT
 CMD node ./dist/server/entry.mjs
