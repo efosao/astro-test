@@ -15,7 +15,7 @@ hyperscript.browserInit();
 
 const utils = {
   init: () => {
-    console.debug("Initializing utils");
+    console.info("utils.init");
     const body: HTMLElement = document.getElementById("body");
     const checkbox: HTMLInputElement = document.getElementById(
       "theme-toggle"
@@ -33,7 +33,7 @@ const utils = {
   toggleTheme: () => {
     const body: HTMLElement = document.getElementById("body");
     const isDark = body.classList.contains("dark");
-    console.debug("Toggling theme", isDark);
+    console.info("Toggling theme", isDark);
 
     if (isDark) {
       body.classList.remove("dark");
@@ -42,7 +42,18 @@ const utils = {
       body.classList.add("dark");
       window.localStorage.setItem("theme", "dark");
     }
+
+    // window.location.reload();
   }
 };
 
 window.utils = utils;
+
+document.addEventListener(
+  "astro:page-load",
+  () => {
+    console.info("astro:page-load");
+    utils.init();
+  },
+  { once: false }
+);

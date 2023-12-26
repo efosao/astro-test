@@ -77,7 +77,7 @@
 }
 
 .nav a {
-  @apply inline-block font-semibold px-4 py-4 bg-gray-100 transition-all duration-500 dark:bg-gray-800 dark:text-gray-200;
+  @apply inline-block font-semibold px-4 py-4 transition-all duration-500 dark:bg-gray-800 dark:text-gray-200;
 
   &:hover, &:focus, &:active, &.active {
       @apply bg-gray-300 dark:bg-gray-700;
@@ -176,7 +176,15 @@ select {
 }
 
 input[type="checkbox"] {
-    @apply bg-white text-gray-800 p-4 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:focus:bg-slate-700 dark:focus:border-gray-700 dark:focus:ring-0 dark:focus:ring-gray-700 dark:focus:ring-opacity-50 dark:placeholder-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-200 dark:hover:border-gray-700 dark:hover:focus:border-gray-700 dark:hover:focus:ring-0 dark:hover:focus:ring-gray-700 dark:hover:focus:ring-opacity-50 dark:hover:placeholder-gray-500;
+    @apply bg-yellow-200 text-gray-800 p-4 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:focus:bg-slate-700 dark:focus:border-gray-700 dark:focus:ring-0 dark:focus:ring-gray-700 dark:focus:ring-opacity-50 dark:placeholder-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-200 dark:hover:border-gray-700 dark:hover:focus:border-gray-700 dark:hover:focus:ring-0 dark:hover:focus:ring-gray-700 dark:hover:focus:ring-opacity-50 dark:hover:placeholder-gray-500;
+}
+
+input[type="checkbox"]:checked {
+    @apply dark:bg-slate-700;
+
+    &:hover {
+        @apply dark:bg-slate-600;
+    }
 }
 
 label {

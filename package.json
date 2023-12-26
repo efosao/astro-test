@@ -15,6 +15,7 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "astro": "^4.0.7",
+    "classnames": "^2.3.3",
     "htmx.org": "^1.9.10",
     "hyperscript.org": "^0.9.12",
     "tailwindcss": "^3.4.0"

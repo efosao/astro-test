@@ -1,0 +1,53 @@
+---
+title: "Server Time";
+partial: true;
+import { formatDateTime } from "../../utils/date";
+import classNames from "classnames";
+
+console.log(
+  "Astro.url.searchParams.get('counter')",
+  Astro.url.searchParams.get("counter")
+);
+
+let counter =
+  Number(Astro.url.searchParams.get("counter") || 0) +
+  Math.floor(Math.random() * 20);
+if (counter > 100) counter = 100;
+const inProgress = counter < 100;
+---
+
+<div
+  hx-get={counter < 100 ? `/partials/start?counter=${counter}` : null}
+  hx-target="this"
+  hx-trigger={counter < 100 ? "every 600ms" : "done"}
+  hx-swap="outerHTML"
+>
+  <h3 role="status" id="pblabel" tabindex="-1">Progress Bar Test</h3>
+  <div>
+    <div
+      aria-labelledby="pblabel"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow={counter}
+      class="progress"
+      role="progressbar"
+    >
+      <div id="pb" class="progress-bar" style={`width: ${counter}%`}>
+        <span class="sr-only relative">{counter}%</span>
+      </div>
+    </div>
+  </div>
+
+  <button
+    class={classNames(
+      "text-orange-900 btn dark:text-orange-200 font-bold",
+      { show: !inProgress },
+      { "pointer-events-none": inProgress }
+    )}
+    hx-get="/partials/start"
+    id="restart-btn"
+    disabled={inProgress}
+  >
+    Restart Job
+  </button>
+</div>

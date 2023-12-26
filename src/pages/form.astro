@@ -41,6 +41,7 @@ if (Astro.request.method === "POST") {
     if (!hasErrors) {
       //   await registerUser({name, email, password});
       console.log({ name, email, password });
+      Astro.response.status = 400;
       //   return Astro.redirect("/login");
     }
   } catch (error) {
@@ -58,23 +59,29 @@ if (Astro.request.method === "POST") {
       <span>Username</span><br />
       <input type="text" name="username" value={name} />
     </label>
-    {errors.username && <p>{errors.username}</p>}
+    {
+      errors.username && (
+        <p class="text-red-600 dark:text-red-300">{errors.username}</p>
+      )
+    }
     <label>
       Email<br />
       <input type="email" name="email" value={email} required />
     </label>
-    {errors.email && <p>{errors.email}</p>}
+    {
+      errors.email && (
+        <p class="text-red-600 dark:text-red-300">{errors.email}</p>
+      )
+    }
     <label>
       Password<br />
-      <input
-        type="password"
-        name="password"
-        value={password}
-        required
-        minlength="6"
-      />
+      <input type="password" name="password" value={password} minlength="6" />
     </label>
-    {errors.password && <p>{errors.password}</p>}
+    {
+      errors.password && (
+        <p class="text-red-600 dark:text-red-300">{errors.password}</p>
+      )
+    }
     <button class="button bg-green-600 h-12">Register</button>
   </form>
 </Layout>
