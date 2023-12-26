@@ -1,44 +1,25 @@
-FROM oven/bun
-
+FROM node:lts AS base
 WORKDIR /app
 
-# Install nodejs using n
-RUN apt-get -y update; apt-get -y install curl
-ARG NODE_VERSION=18
-RUN curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n \
-    && bash n $NODE_VERSION \
-    && rm n \
-    && npm install -g n
+# By copying only the package.json and package-lock.json here, we ensure that the following `-deps` steps are independent of the source code.
+# Therefore, the `-deps` steps will be skipped if only the source code changes.
+COPY package.json ./
 
-# Update bun
-RUN apt install zip -y
-RUN bun upgrade
+FROM base AS prod-deps
+RUN npm install --production
 
-COPY package.json .
-COPY bun.lockb .
+FROM base AS build-deps
+RUN npm install --production=false
 
-RUN bun install --production
-
-# COPY tailwind.config.js .
-# COPY tsconfig.json .
-# COPY prisma ./prisma
-# COPY src ./src
+FROM build-deps AS build
 COPY . .
+RUN npm run build
 
-RUN echo "Generating Prisma Client"
-ENV NODE_ENV production
-RUN bunx prisma generate
+FROM base AS runtime
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
 
-# RUN bun run build:scripts:prod
-# RUN bun run build:css:prod
-
-RUN bun run build
-
-# CMD ["bun", "src/index.tsx"]
-# CMD ["node", "dist/server/entry.mjs"]
-
-ENV PORT=5000
-
-EXPOSE 5000
-
+ENV HOST=0.0.0.0
+ENV PORT=80
+EXPOSE 80
 CMD node ./dist/server/entry.mjs
