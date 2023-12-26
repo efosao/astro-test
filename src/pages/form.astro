@@ -1,0 +1,80 @@
+---
+// import { isRegistered, registerUser } from "../../data/users"
+// import { isValidEmail } from "../../utils/isValidEmail";
+import Layout from "../layouts/Layout.astro";
+
+let name = "";
+let email = "";
+let password = "";
+
+function isRegistered(email) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(false);
+    }, 1000);
+  });
+}
+
+function isValidEmail(email) {
+  return email === "efosao@gmail.com";
+}
+
+const errors = { username: "", email: "", password: "" };
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    name = data.get("username").toString();
+    email = data.get("email").toString();
+    password = data.get("password").toString();
+    if (typeof name !== "string" || name.length < 1) {
+      errors.username += "Please enter a username. ";
+    }
+    if (typeof email !== "string" || !isValidEmail(email)) {
+      errors.email += "Email is not valid. ";
+    } else if (await isRegistered(email)) {
+      errors.email += "Email is already registered. ";
+    }
+    if (typeof password !== "string" || password.length < 6) {
+      errors.password += "Password must be at least 6 characters. ";
+    }
+    const hasErrors = Object.values(errors).some((msg) => msg);
+    if (!hasErrors) {
+      //   await registerUser({name, email, password});
+      console.log({ name, email, password });
+      //   return Astro.redirect("/login");
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+  }
+}
+---
+
+<Layout title="Form">
+  <h1 class="text-xl mb-4">Register</h1>
+  <form class="flex flex-col gap-2" method="POST">
+    <label>
+      <span>Username</span><br />
+      <input type="text" name="username" value={name} />
+    </label>
+    {errors.username && <p>{errors.username}</p>}
+    <label>
+      Email<br />
+      <input type="email" name="email" value={email} required />
+    </label>
+    {errors.email && <p>{errors.email}</p>}
+    <label>
+      Password<br />
+      <input
+        type="password"
+        name="password"
+        value={password}
+        required
+        minlength="6"
+      />
+    </label>
+    {errors.password && <p>{errors.password}</p>}
+    <button class="button bg-green-600 h-12">Register</button>
+  </form>
+</Layout>

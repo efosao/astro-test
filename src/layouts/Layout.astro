@@ -1,0 +1,98 @@
+---
+import "../styles.css";
+import type { HTMLAttributes, HTMLTag } from "astro/types";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html id="body" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="../scripts/index.ts"></script>
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+
+  <body
+    class="bg-slate-100 dark:bg-slate-600"
+    onload="utils.init()"
+    hx-boost="true"
+  >
+    <header class="relative">
+      <nav class="nav flex gap-1">
+        <a href="/">Home</a>
+        <!-- <a href="/about">About</a> -->
+        <a href="/form">Form</a>
+        <!-- <a href="/posts">Posts</a> -->
+        <!-- <a class={classNames({ active: isHome })} href="/">Home</a>
+					<a class={classNames({ active: isAbout })} href="/about">About</a>
+					<a class={classNames({ active: isForm })} href="/form">Form</a>
+					<a class={classNames({ active: isPosts })} href="/posts">Posts</a> -->
+      </nav>
+      <label
+        for="theme-toggle"
+        class="absolute flex items-center top-3 right-4 text-2xl"
+        >🌞
+        <input
+          id="theme-toggle"
+          _="on click utils.toggleTheme()"
+          type="checkbox"
+          class="mx-1"
+        />
+      </label>
+    </header>
+    <main class="p-4 max-w-5xl m-auto">
+      <div>
+        <h1 class="text-2xl text font-bold border-b-2 mb-2">{title}</h1>
+        <main class="mt-4">
+          <slot />
+        </main>
+      </div>
+      <div
+        class="clear-both pt-4"
+        hx-get="/partials/time"
+        hx-trigger="every 60s"
+      >
+        <!-- <p class="font-bold">Server Time: {formatDateTime(new Date())}</p> -->
+      </div>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --accent: 136, 58, 234;
+    --accent-light: 224, 204, 250;
+    --accent-dark: 49, 10, 101;
+    --accent-gradient: linear-gradient(
+      45deg,
+      rgb(var(--accent)),
+      rgb(var(--accent-light)) 30%,
+      white 60%
+    );
+  }
+  html {
+    font-family: system-ui, sans-serif;
+    background: #13151a;
+    background-size: 224px;
+  }
+  code {
+    font-family:
+      Menlo,
+      Monaco,
+      Lucida Console,
+      Liberation Mono,
+      DejaVu Sans Mono,
+      Bitstream Vera Sans Mono,
+      Courier New,
+      monospace;
+  }
+</style>
