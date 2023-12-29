@@ -10,6 +10,10 @@ WORKDIR /app
 #     && rm n \
 #     && npm install -g n
 
+ENV NODE_ENV production
+ENV HOST=0.0.0.0
+ENV PORT=80
+
 COPY package.json .
 COPY bun.lockb .
 
@@ -18,11 +22,10 @@ RUN bun install --production
 COPY . .
 
 RUN echo "Generating Prisma Client"
-ENV NODE_ENV production
 RUN bunx prisma generate
 
 RUN bun run build
 
-CMD ["bun", "run", "start"]
-
 EXPOSE 80
+
+CMD ["bun", "run", "start"]
