@@ -8,7 +8,6 @@ COPY bun.lockb ./
 
 FROM base AS prod-deps
 RUN bun install --production
-
 COPY prisma ./prisma
 RUN bunx prisma generate
 
