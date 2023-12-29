@@ -1,4 +1,4 @@
-FROM node:lts AS base
+FROM oven/bun:latest AS base
 WORKDIR /app
 
 # By copying only the package.json and package-lock.json here, we ensure that the following `-deps` steps are independent of the source code.
@@ -6,18 +6,18 @@ WORKDIR /app
 COPY package.json ./
 
 FROM base AS prod-deps
-RUN npm install --production
+RUN bun install --production
 COPY prisma ./prisma
-RUN npx prisma generate
+RUN bunx prisma generate
 
 FROM base AS build-deps
-RUN npm install --production=false
+RUN bun install
 
 FROM build-deps AS build
 COPY . .
-RUN npm run build
+RUN bun run build
 COPY prisma ./prisma
-RUN npx prisma generate
+RUN bunx prisma generate
 
 FROM base AS runtime
 COPY --from=prod-deps /app/node_modules ./node_modules

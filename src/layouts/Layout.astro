@@ -63,7 +63,7 @@ const isPosts = pathname === "/posts";
       <div
         class="clear-both pt-4"
         hx-get="/partials/time"
-        hx-trigger="every 1s"
+        hx-trigger="every 10s"
       >
         <p class="font-bold">Server Time: {formatDateTime(new Date())}</p>
       </div>
