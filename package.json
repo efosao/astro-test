@@ -10,7 +10,8 @@
     "start": "bunx --bun astro dev",
     "build": "bunx --bun astro build",
     "preview": "bunx --bun astro preview",
-    "astro": "bunx --bun astro"
+    "astro": "bunx --bun astro",
+    "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@astrojs/node": "^7.0.2",

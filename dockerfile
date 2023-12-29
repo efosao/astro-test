@@ -9,7 +9,7 @@ COPY bun.lockb ./
 FROM base AS prod-deps
 RUN bun install --production
 COPY prisma ./prisma
-RUN npx prisma generate
+RUN bun run prisma:generate
 
 FROM base AS build-deps
 RUN bun install
@@ -17,8 +17,6 @@ RUN bun install
 FROM build-deps AS build
 COPY . .
 RUN bun run build
-COPY prisma ./prisma
-RUN npx prisma generate
 
 FROM base AS runtime
 COPY --from=prod-deps /app/node_modules ./node_modules
