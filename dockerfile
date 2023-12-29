@@ -5,15 +5,12 @@ WORKDIR /app
 # Therefore, the `-deps` steps will be skipped if only the source code changes.
 COPY package.json ./
 COPY bun.lockb ./
-COPY prisma ./prisma
 
 FROM base AS prod-deps
 RUN bun install --production
-RUN bun run prisma:generate
 
 FROM base AS build-deps
 RUN bun install
-RUN bun run prisma:generate
 
 FROM build-deps AS build
 COPY . .
@@ -22,6 +19,7 @@ RUN bun run build
 FROM base AS runtime
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
 
 ENV HOST=0.0.0.0
 ENV PORT=80

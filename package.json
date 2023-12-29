@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "bunx --bun astro dev",
-    "start": "bunx --bun astro dev",
+    "prestart": "bun run prisma:generate",
+    "start": "bun ./dist/server/entry.mjs",
     "build": "bunx --bun astro build",
     "preview": "bunx --bun astro preview",
     "astro": "bunx --bun astro",
