@@ -13,10 +13,10 @@ RUN bun run prisma:generate
 
 FROM base AS build-deps
 RUN bun install
+RUN bun run prisma:generate
 
 FROM build-deps AS build
 COPY . .
-RUN bun run prisma:generate
 RUN bun run build
 
 FROM base AS runtime
