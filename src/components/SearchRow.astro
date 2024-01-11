@@ -4,11 +4,17 @@
 import cx from "classnames";
 /* @ts-ignore */
 import initialism from "initialism";
+import type { PostDetails } from "models/post";
 // import { useEffect, useState } from "react";
 // import { GiPin } from "react-icons/gi";
 // import { genPostUrl } from "lib/url";
 // import type { PostResult } from "../models/post";
 // import { AstroJSX } from "astro/jsx-runtime";
+
+interface Props {
+  color: string;
+  post: PostDetails & { url: string };
+}
 
 // type SearchRowType = {
 //   alreadyApplied?: boolean;
@@ -25,28 +31,10 @@ const { post } = Astro.props;
 const color = "";
 const disableClickToggle = false;
 const alreadyApplied = false;
-const tagButtons = [];
 
 const companyName = post.company?.name || post.company_name;
 const companyWordCount = companyName.split(" ").length;
 const initialsLength = Math.min(companyWordCount, 3);
-// const tagButtons = (post.tags || []).map((tag) => {
-//   const handleClick = (e: any) => {
-//     e.stopPropagation();
-//     toggleTag && toggleTag(tag);
-//   };
-//   const isSelected = selectedTags.includes(tag);
-//     return (
-//       <button
-//         class={cx("row-tag", { selected: isSelected })}
-//         key={tag}
-//         type="button"
-//         _="on click halt"
-//       >
-//         {tag}
-//       </button>
-//     );
-//   });
 
 type DetailMetadataType = {
   apply_options: {
@@ -170,7 +158,22 @@ const loadDescEventName = `load-desc-${post.id}`;
           }
         </p>
       </div>
-      <div class="tag-container">{tagButtons}</div>
+      <div class="tag-container">
+        {
+          (post.tags || []).map((tag) => {
+            const isSelected = false;
+            return (
+              <button
+                class={cx("row-tag", { selected: isSelected })}
+                type="button"
+                _="on click halt"
+              >
+                {tag}
+              </button>
+            );
+          })
+        }
+      </div>
       <span class="m-2">{post.published_at_display}</span>
       {
         alreadyApplied ? (

@@ -1,7 +1,7 @@
 ---
 import PostDescription from "components/PostDescription.astro";
 import { getPostDetailById } from "models/post";
-partial: true;
+export const partial = true;
 const { id } = Astro.params;
 const { description } = await getPostDetailById(id);
 ---
