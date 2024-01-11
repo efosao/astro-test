@@ -175,7 +175,7 @@ export type PostResult = {} & Awaited<ReturnType<typeof getPostById>>;
 export async function getPublishedPosts({
   skip,
   take,
-  excludeDesc
+  excludeDesc = false
 }: {
   skip: number | undefined;
   take: number | undefined;

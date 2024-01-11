@@ -4,11 +4,13 @@ import type { PostDetails } from "models/post";
 import { getPublishedPosts } from "../models/post";
 import Layout from "layouts/Layout.astro";
 
-type PostsProps = {
-  posts: (PostDetails & { url: string })[];
-};
+type PostType = PostDetails & { url: string };
 
-const posts = await getPublishedPosts({ take: 10, skip: 0 });
+const posts: PostType[] = await getPublishedPosts({
+  take: 15,
+  skip: 0,
+  excludeDesc: true
+});
 ---
 
 <Layout title="Job Posts">
