@@ -23,7 +23,6 @@ const isPosts = pathname === "/posts";
     <meta name="description" content="Astro description" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <script src="../scripts/index.ts"></script>
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <ViewTransitions />
@@ -68,5 +67,6 @@ const isPosts = pathname === "/posts";
         <p class="font-bold">Server Time: {formatDateTime(new Date())}</p>
       </div>
     </main>
+    <script src="../scripts/index.ts"></script>
   </body>
 </html>
