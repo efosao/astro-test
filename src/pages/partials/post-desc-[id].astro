@@ -6,4 +6,4 @@ const { id } = Astro.params;
 const { description } = await getPostDetailById(id);
 ---
 
-<PostDescription description={description} />
+<PostDescription description={description} id={id} />

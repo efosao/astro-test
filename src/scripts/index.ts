@@ -2,56 +2,73 @@
 /// <reference lib="dom.iterable" />
 import * as htmx from "htmx.org";
 import * as hyperscript from "hyperscript.org";
+import Cookies from "js-cookie";
 
 declare global {
   interface Window {
-    htmx: any;
+    __htmx: any;
     utils: any;
   }
 }
 
-window.htmx = htmx;
-hyperscript.browserInit();
+window.__htmx = htmx;
 
 const utils = {
-  init: () => {
-    console.info("utils.init");
-    const body: HTMLElement = document.getElementById("body");
-    const checkbox: HTMLInputElement = document.getElementById(
-      "theme-toggle"
-    ) as HTMLInputElement;
-    const isDark = window.localStorage.getItem("theme") === "dark";
-    checkbox.checked = isDark;
-
-    if (isDark) {
-      body.classList.add("dark");
-    } else {
-      body.classList.remove("dark");
-    }
-  },
-
-  toggleTheme: () => {
-    const body: HTMLElement = document.getElementById("body");
-    const isDark = body.classList.contains("dark");
-    console.info("Toggling theme", isDark);
-
-    if (isDark) {
-      body.classList.remove("dark");
-      window.localStorage.setItem("theme", "light");
-    } else {
-      body.classList.add("dark");
-      window.localStorage.setItem("theme", "dark");
-    }
-
-    // window.location.reload();
-  },
-
-  preventBubbling: (e: any) => {
+  halt: (e: Event) => {
+    e.preventDefault();
     e.stopPropagation();
+  },
+
+  init: async () => {
+    console.debug("Initializing utils");
+    utils.configureDefaultTheme();
+
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    Cookies.set("tz", tz);
+  },
+
+  configureDefaultTheme: () => {
+    const theme = Cookies.get("theme") || "system";
+    const html = document.getElementsByTagName("html")[0];
+    let isDark =
+      theme === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        : theme === "dark";
+
+    if (isDark) {
+      html.classList.remove("light", "system");
+      document.getElementsByTagName("html")[0].classList.add("dark");
+    } else document.getElementsByTagName("html")[0].classList.remove("dark");
+  },
+
+  toggleOpenState: (checkboxId: string, descriptionId: string) => {
+    const checkbox: HTMLInputElement = document.getElementById(
+      checkboxId
+    ) as HTMLInputElement;
+    checkbox.checked = !checkbox.checked;
+    window.__htmx.trigger("#" + descriptionId, "change");
+  },
+
+  setTheme: (event: { target: { value: "light" | "dark" | "system" } }) => {
+    const theme = event?.target?.value;
+    const html: HTMLElement = document.getElementsByTagName("html")[0];
+    const options = ["light", "dark", "system"];
+
+    if (!options.includes(theme)) throw new Error("Unknown theme: " + theme);
+    Cookies.set("theme", theme);
+    utils.configureDefaultTheme();
   }
 };
 
+window
+  .matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener("change", ({ matches }) => {
+    utils.configureDefaultTheme();
+  });
+
 window.utils = utils;
+
+window.document.addEventListener("DOMContentLoaded", utils.init);
 
 document.addEventListener(
   "astro:page-load",

@@ -3,34 +3,37 @@ import cx from "classnames";
 
 interface Props {
   description: string;
+  id: string;
 }
 
-const { description } = Astro.props;
+const { description, id } = Astro.props;
 ---
 
-<div class="flex flex-col fade-in-bottom">
-  <div
-    class="text-xl max-w-prose m-auto px-4 pb-4 border-2 mb-8 dark:border-slate-700 dark:bg-slate-800 rounded-md"
-  >
-    {
-      /* {tagButtons && tagButtons.length ? (
+<div id={`description-${id}`} class="hidden peer-checked:block">
+  <div class="flex flex-col fade-in-bottom">
+    <div
+      class="text-xl max-w-prose m-auto px-4 pb-4 border-2 mb-8 dark:border-slate-700 dark:bg-slate-800 rounded-md"
+    >
+      {
+        /* {tagButtons && tagButtons.length ? (
                   <div class="m-0 my-2 mb-4 md:hidden">{tagButtons}</div>
                 ) : null}
                 <h2 class="text-3xl pt-4">
                     {heading}
                 </h2> */
-    }
+      }
 
-    <div class="flex flex-col sm:gap-2">
-      <article
-        class={cx("prose-base md:prose-lg min-h-[200px]")}
-        set:html={description}
-      />
-      {
-        /* <div class="grid grid-cols-2 text-base my-4">
+      <div class="flex flex-col sm:gap-2">
+        <article
+          class={cx("prose-base md:prose-lg min-h-[200px]")}
+          set:html={description}
+        />
+        {
+          /* <div class="grid grid-cols-2 text-base my-4">
                     {applySection}
                   </div> */
-      }
+        }
+      </div>
     </div>
   </div>
 </div>

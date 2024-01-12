@@ -1,8 +1,9 @@
 ---
 import { ViewTransitions } from "astro:transitions";
-import classNames from "classnames";
+import cx from "classnames";
 import "../styles.css";
 import { formatDateTime } from "../utils/date.ts";
+import ThemeMenu from "components/ThemeMenu.astro";
 
 interface Props {
   title: string;
@@ -14,59 +15,92 @@ const isHome = pathname === "/";
 const isAbout = pathname === "/about";
 const isForm = pathname === "/form";
 const isPosts = pathname === "/posts";
+
+const theme: string = Astro.cookies.get("theme")?.value || "system";
+const isDark = theme === "dark";
+
+const siteName = "Bun & HTMX Tests";
+const fullPageTitle = title ? `${title} - ${siteName}` : siteName;
+const hasSidebar = !!Astro.slots.has("sidebar");
 ---
 
 <!doctype html>
-<html id="body" lang="en">
+<html id="body" lang="en" class={theme}>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content="Astro description" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+    <script src="../scripts/index.ts"></script>
+    <link rel="icon" type="image/svg+xml" href="/static/images/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-    <ViewTransitions />
+    <!-- <ViewTransitions /> -->
   </head>
 
-  <body
-    class="bg-slate-100 dark:bg-slate-600"
-    hx-boost="true"
-    onload="utils.init()"
-  >
+  <body class="grid min-h-lvh grid-rows-[auto_1fr_auto] dark:bg-slate-600">
     <header class="relative">
       <nav class="nav flex gap-1">
-        <a class={classNames({ active: isHome })} href="/">Home</a>
-        <a class={classNames({ active: isAbout })} href="/about">About</a>
-        <a class={classNames({ active: isForm })} href="/form">Form</a>
-        <a class={classNames({ active: isPosts })} href="/posts">Posts</a>
+        <a class={cx({ active: isHome })} href="/">
+          <span class="hidden sm:inline-block">Home</span>
+          <span class="sm:hidden">🏠</span>
+        </a>
+        {
+          /* <a class={cx({ active: isAbout })} href="/about">
+          <span class="hidden sm:inline-block">About</span>
+          <span class="sm:hidden">❓</span>
+        </a> */
+        }
+        <a class={cx({ active: isForm })} href="/form">
+          <span class="hidden sm:inline-block">Form</span>
+          <span class="sm:hidden">📄</span>
+        </a>
+        <a class={cx({ active: isPosts })} href="/posts">
+          <span class="hidden sm:inline-block">Posts</span>
+          <span class="sm:hidden">📋</span>
+        </a>
+        {
+          /* <a href="/stream" target="_blank" hx-boost="false">
+          <span class="hidden sm:inline-block">Stream Test</span>
+          <span class="sm:hidden">🌊</span>
+        </a> */
+        }
       </nav>
-      <label
-        for="theme-toggle"
-        class="absolute flex items-center top-3 right-4 text-2xl"
-        >🌞
-        <input
-          id="theme-toggle"
-          onchange="utils.toggleTheme()"
-          type="checkbox"
-          class="mx-1"
-        />
-      </label>
+      <ThemeMenu className="absolute right-4 top-2" currentTheme={theme} />
     </header>
-    <main class="p-4 max-w-5xl m-auto">
-      <div>
-        <h1 class="text-2xl text font-bold border-b-2 mb-2">{title}</h1>
-        <main class="mt-4">
-          <slot />
-        </main>
-      </div>
-      <div
-        class="clear-both pt-4"
-        hx-get="/partials/time"
-        hx-trigger="every 1m"
+    <main>
+      <section class="m-auto max-w-5xl px-2 pt-2">
+        <h1 class="text text-2xl font-bold text-orange-800 dark:text-slate-300">
+          {title}
+        </h1>
+      </section>
+      <section
+        class={cx("m-auto max-w-5xl p-2", {
+          "grid grid-cols-1 gap-2 sm:grid-cols-[260px_minmax(300px,_1fr)]":
+            hasSidebar
+        })}
       >
-        <p class="font-bold">Server Time: {formatDateTime(new Date())}</p>
-      </div>
+        {
+          hasSidebar ? (
+            <aside>
+              <slot name="sidebar" />
+            </aside>
+          ) : null
+        }
+        <section>
+          <slot />
+        </section>
+      </section>
     </main>
-    <script src="../scripts/index.ts"></script>
+    <footer
+      class="flex items-center justify-center bg-orange-100 p-4 dark:bg-slate-800"
+    >
+      <div
+        hx-get="/partials/time"
+        hx-trigger="load, every 2s"
+        hx-swap="outerHTML"
+      >
+        <p class="font-semibold">{formatDateTime(new Date())}</p>
+      </div>
+    </footer>
   </body>
 </html>

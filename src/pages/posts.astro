@@ -1,8 +1,9 @@
 ---
 import SearchRow from "components/SearchRow.astro";
 import type { PostDetails } from "models/post";
-import { getPublishedPosts } from "../models/post";
+import { getMappedAndSortedTags, getPublishedPosts } from "models/post";
 import Layout from "layouts/Layout.astro";
+import CheckList from "components/CheckList.astro";
 
 type PostType = PostDetails & { url: string };
 
@@ -11,8 +12,16 @@ const posts: PostType[] = await getPublishedPosts({
   skip: 0,
   excludeDesc: true
 });
+
+const tags = await getMappedAndSortedTags();
+const selectedTags =
+  (Astro.url.searchParams.get("tags") || "").split(",") || [];
 ---
 
 <Layout title="Job Posts">
   {posts.map((post) => <SearchRow color="white" post={post} />)}
+
+  <div slot="sidebar">
+    <CheckList selectedTags={selectedTags} tags={tags} />
+  </div>
 </Layout>

@@ -13,6 +13,7 @@ import type { PostDetails } from "models/post";
 
 interface Props {
   color: string;
+  selectedTags?: string[];
   post: PostDetails & { url: string };
 }
 
@@ -27,7 +28,7 @@ interface Props {
 //   toggleTag?: (tag: string) => void;
 // };
 
-const { post } = Astro.props;
+const { post, selectedTags } = Astro.props;
 const color = "";
 const disableClickToggle = false;
 const alreadyApplied = false;
@@ -63,27 +64,54 @@ const htmxIndicatorId = `htmx-indicator-${post.id}`;
 const descriptionId = `description-${post.id}`;
 const checkboxId = `checkbox-${post.id}`;
 const loadDescEventName = `load-desc-${post.id}`;
+
+// const tagButtons = (post.tags || []).map((tag) => {
+//   const isSelected = selectedTags.includes(tag);
+//   return (
+//     <button
+//       class={cx("row-tag", { selected: isSelected })}
+//       type="button"
+//       onclick="utils.halt(event)"
+//     >
+//       {tag}
+//     </button>
+//   );
+// });
+
+const tagButtons = undefined;
+
+const PATH_TO_PIN_CIRCLE = "/static/images/pin-circle-svgrepo-com.svg";
+const onclick = `utils.toggleOpenState('${checkboxId}', '${descriptionId}')`;
 ---
 
 <div
-  class={cx(
-    "search_row group relative rounded-md bg-white mb-2 dark:bg-slate-700 dark:text-white dark:border-slate-600",
-    { "border-flush-orange-900": !color },
-    {
-      "border-flush-orange-200 bg-yellow-100 group-open:bg-yellow-200":
-        highlight
-    },
-    {
-      "hover:bg-yellow-200 hover:bg-opacity-70 hover:border-yellow-300":
-        highlight && !disableClickToggle
-    }
-  )}
-  _={`on click toggle [@checked] on #${checkboxId} then trigger "${loadDescEventName}"`}
+  class={cx("search_row group relative mb-2 rounded-md border-0", {
+    ["border-orange-200 bg-orange-50 text-black dark:border-slate-700 dark:bg-slate-700 dark:text-white"]:
+      !highlight,
+    ["border-pink-200 bg-pink-100 dark:border-prussian-blue-900 dark:bg-black dark:text-white"]:
+      highlight
+  })}
+  onclick={onclick}
 >
+  {
+    highlight && (
+      <img
+        alt="pin"
+        src={PATH_TO_PIN_CIRCLE}
+        class="absolute right-[-8px] top-[-8px] h-6 w-6 text-red-400"
+      />
+    )
+  }
   <div class="cursor-pointer">
-    <div class={cx("px-4 flex items-center space-x-2 h-28")}>
+    <div class={cx("flex h-32 items-center space-x-2 px-4")}>
       <span
-        class="inline-flex items-center justify-center overflow-hidden w-[60px] shrink-0"
+        class={cx(
+          "initials inline-flex w-[60px] shrink-0 items-center justify-center overflow-hidden",
+          { "bg-orange-400": !highlight },
+          {
+            "bg-pink-400": highlight
+          }
+        )}
       >
         {
           thumbnail ? (
@@ -96,7 +124,7 @@ const loadDescEventName = `load-desc-${post.id}`;
               />
             </span>
           ) : (
-            <span class={cx("initials")}>
+            <span>
               {initialism(
                 companyName
                   .replace(/\([^)]*\)|-()(?=\s|$)/g, "")
@@ -107,14 +135,12 @@ const loadDescEventName = `load-desc-${post.id}`;
           )
         }
       </span>
-      <div class="flex flex-col grow">
-        <p class="opacity-60 font-semibold line-clamp-1 lg:line-clamp-2">
+      <div class="flex grow flex-col">
+        <p class="line-clamp-1 font-semibold lg:line-clamp-2">
           {companyName}
         </p>
 
-        <p class="font-bold line-clamp-1 md:line-clamp-2">
-          {post.title}
-        </p>
+        <p class="line-clamp-1 font-bold md:line-clamp-2">{post.title}</p>
 
         <p>
           {
@@ -122,7 +148,7 @@ const loadDescEventName = `load-desc-${post.id}`;
               <span class="italic">
                 Remote&nbsp;
                 {post.location && (
-                  <span class="text-gray-400">({post.location.trim()})</span>
+                  <span class="text-orange-500">({post.location.trim()})</span>
                 )}
               </span>
             ) : (
@@ -131,22 +157,7 @@ const loadDescEventName = `load-desc-${post.id}`;
           }
         </p>
       </div>
-      <div class="tag-container">
-        {
-          (post.tags || []).map((tag) => {
-            const isSelected = false;
-            return (
-              <button
-                class={cx("row-tag", { selected: isSelected })}
-                type="button"
-                _="on click halt"
-              >
-                {tag}
-              </button>
-            );
-          })
-        }
-      </div>
+      <div class="tag-container">{tagButtons}</div>
       <span class="m-2">{post.published_at_display}</span>
       {
         alreadyApplied ? (
@@ -154,10 +165,9 @@ const loadDescEventName = `load-desc-${post.id}`;
         ) : (
           <a
             class="btn-apply"
-            onclick="utils.preventBubbling(event)"
             href={applyUrl}
             target={isExternalApplyLink ? "_blank" : undefined}
-            _="on click halt"
+            onclick="utils.halt(event)"
           >
             <span>Apply</span>
           </a>
@@ -166,24 +176,27 @@ const loadDescEventName = `load-desc-${post.id}`;
     </div>
   </div>
 
-  <div _="on click halt">
-    <input class="hidden peer" type="checkbox" id={checkboxId} />
-    <div class="hidden justify-center items-center peer-checked:flex">
-      <div
-        class="justify-center items-center peer-checked:flex"
-        hx-get={`/partials/post-desc-${post.id}`}
-        hx-indicator={`#${htmxIndicatorId}`}
-        hx-swap="outerHTML"
-        hx-trigger={`${loadDescEventName} from:body`}
-        id={descriptionId}
-      >
-        <img
-          alt="loading"
-          id={htmxIndicatorId}
-          class="htmx-indicator h-8"
-          src="/static/pacman-loader.svg"
-        />
-      </div>
+  <div onclick="utils.halt(event)">
+    <input
+      aria-label="toggle show description"
+      class="peer hidden"
+      type="checkbox"
+      id={checkboxId}
+    />
+    <div
+      class="hidden items-center justify-center peer-checked:flex"
+      hx-get={`/partials/post-desc-${post.id}`}
+      hx-indicator={`#${htmxIndicatorId}`}
+      hx-swap="outerHTML focus-scroll:true"
+      hx-trigger={"change"}
+      id={descriptionId}
+    >
+      <img
+        alt="loading"
+        id={htmxIndicatorId}
+        class="htmx-indicator m-4 h-8"
+        src="/static/images/pacman-loader.svg"
+      />
     </div>
   </div>
 </div>

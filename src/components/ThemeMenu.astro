@@ -1,0 +1,21 @@
+---
+interface Props {
+  className?: string;
+  currentTheme?: string;
+}
+
+const { className, currentTheme } = Astro.props;
+---
+
+<form class={className} onchange="utils.setTheme(event)">
+  <select class="bg-transparent">
+    <option selected={"light" === currentTheme} value="light"> 🌞</option>
+    <option selected={"dark" === currentTheme} value="dark"> 🌘</option>
+    <option
+      selected={"system" === currentTheme || !currentTheme}
+      value="system"
+    >
+      🌎
+    </option>
+  </select>
+</form>

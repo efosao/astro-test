@@ -7,6 +7,7 @@ import { prisma } from "db";
 import { getFriendlyDuration } from "lib/date";
 import { cleanText, convertTextToHtml } from "lib/page";
 import { genPostUrl } from "lib/url";
+import type { TagType } from "types/post.type";
 
 const memoryCache = await caching("memory", {
   max: 100,
@@ -184,13 +185,10 @@ export async function getPublishedPosts({
   const key = `getPublishedPosts-${skip}-${take}-${excludeDesc}`;
   const isCached = await memoryCache.get<PostsResult>(key);
   if (isCached) {
-    console.log("cache hit", key);
     return isCached;
   }
-  // const cached = isProd || true ? await cache.get<PostsResult>(key) : null;
+
   const description = excludeDesc ? false : true;
-  // console.log("cache", cached ? "hit" : "miss", key);
-  // if (cached) return cached;
 
   return prisma.post
     .findMany({
@@ -228,8 +226,7 @@ export function getPostsByUserId(params: { userId: string }) {
   });
 
   const validationResult = CreatePostParamsSchema.safeParse(params);
-  if (!validationResult.success)
-    return Promise.reject(validationResult.success);
+  if (!validationResult.success) return Promise.reject(false);
 
   return prisma.post
     .findMany({
@@ -266,8 +263,7 @@ export function createPost(data: CreatePostParams) {
   });
 
   const validationResult = CreatePostParamsSchema.safeParse(data);
-  if (!validationResult.success)
-    return Promise.reject(validationResult.success);
+  if (!validationResult.success) return Promise.reject(false);
 
   const {
     company_id,
@@ -324,8 +320,7 @@ export function editPost(data: EditPostParams) {
   });
 
   const validationResult = CreatePostParamsSchema.safeParse(data);
-  if (!validationResult.success)
-    return Promise.reject(validationResult.success);
+  if (!validationResult.success) return Promise.reject(false);
 
   const {
     company_id,
@@ -405,26 +400,35 @@ export async function unpublishPost(postId: string) {
 }
 
 export function getFilteredPostsByTag({
+  excludeDesc = false,
   skip,
   take,
   tags
 }: {
+  excludeDesc?: boolean;
   skip: number | undefined;
   take: number | undefined;
   tags: string[];
 }): Promise<PostDetails[]> {
   if (tags.length === 0) return Promise.resolve([]);
+
+  const select = excludeDesc
+    ? { ...postDetailSelect, description: false }
+    : postDetailSelect;
+
+  const where = {
+    tags: {
+      hasEvery: tags
+    },
+    published_at: { not: null }
+  };
+
   return prisma.post
     .findMany({
-      select: postDetailSelect,
+      select,
       skip,
       take,
-      where: {
-        tags: {
-          hasEvery: tags
-        },
-        published_at: { not: null }
-      },
+      where,
       orderBy: [
         {
           pinned_until: {
@@ -441,6 +445,21 @@ export function getFilteredPostsByTag({
       ]
     })
     .then((posts) => posts.map((p) => formatPostDetails(p)));
+}
+
+export async function getTotalFilteredPostsByTag(
+  tags: string[]
+): Promise<number> {
+  if (tags.length === 0) return Promise.resolve(0);
+
+  const where = {
+    tags: {
+      hasEvery: tags
+    },
+    published_at: { not: null }
+  };
+
+  return prisma.post.count({ where });
 }
 
 type TagsType = { n: string; c: string };
@@ -464,4 +483,14 @@ export async function getPostTags(): Promise<TagsType[]> {
   cache.set(key, result);
 
   return result;
+}
+
+export async function getMappedAndSortedTags(): Promise<TagType[]> {
+  return [{ id: "all", name: "All" }];
+  const tags = await getPostTags();
+  return tags.map(({ n }) => ({
+    id: n,
+    name: n
+  }));
+  // .sort((a, b) => a.name.localeCompare(b.name));
 }

@@ -1,0 +1,52 @@
+---
+import type { TagType } from "types/post.type";
+
+interface Props {
+  tags: TagType[];
+  selectedTags: string[];
+}
+
+const { selectedTags, tags } = Astro.props;
+---
+
+<div
+  class="flex flex-col rounded-md bg-orange-100 p-2 dark:bg-prussian-blue-950"
+>
+  <form
+    class="max-h-56 overflow-y-scroll rounded-md sm:max-h-fit sm:overflow-y-auto"
+    hx-trigger="change delay:300ms, keyup delay:300ms"
+    hx-post="/partials/posts/search"
+    hx-sync="this:replace"
+    hx-target="#posts_container"
+    hx-indicator="#tag_searching"
+  >
+    <h3 class="p-2 font-bold">Tag Filters</h3>
+    <fieldset class="grid grid-cols-1 md:grid-cols-2">
+      {
+        tags.map(({ id, name }) => {
+          const isSelected = selectedTags.includes(id);
+          return (
+            <label class="inline-flex items-center gap-2 p-1">
+              <input
+                class="search"
+                type="checkbox"
+                name={name}
+                value={id}
+                checked={isSelected}
+              />
+              <span class="overflow-clip overflow-ellipsis whitespace-nowrap">
+                {name}
+              </span>
+            </label>
+          );
+        })
+      }
+    </fieldset>
+  </form>
+  <div
+    id="tag_searching"
+    class="htmx-indicator z-10 flex items-center justify-center rounded-md bg-orange-800 p-1 text-orange-200"
+  >
+    Searching...
+  </div>
+</div>

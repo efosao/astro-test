@@ -12,5 +12,8 @@ export default defineConfig({
   server: {
     port: Number(process.env.PORT || 3000),
   },
-  integrations: [tailwind()]
+  integrations: [tailwind()],
+  build: {
+    inlineStylesheets: 'never'
+  }
 });

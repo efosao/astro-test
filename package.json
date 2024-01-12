@@ -30,6 +30,7 @@
     "htmx.org": "^1.9.10",
     "hyperscript.org": "^0.9.12",
     "initialism": "^1.0.4",
+    "js-cookie": "^3.0.5",
     "postmark": "^4.0.2",
     "prisma": "^5.7.1",
     "showdown": "^2.1.0",
