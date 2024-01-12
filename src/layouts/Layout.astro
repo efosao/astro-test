@@ -1,5 +1,5 @@
 ---
-// import { ViewTransitions } from "astro:transitions";
+import { ViewTransitions } from "astro:transitions";
 import classNames from "classnames";
 import "../styles.css";
 import { formatDateTime } from "../utils/date.ts";
@@ -26,7 +26,7 @@ const isPosts = pathname === "/posts";
     <script src="../scripts/index.ts"></script>
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-    <!-- <ViewTransitions /> -->
+    <ViewTransitions />
   </head>
 
   <body
@@ -68,34 +68,5 @@ const isPosts = pathname === "/posts";
         <p class="font-bold">Server Time: {formatDateTime(new Date())}</p>
       </div>
     </main>
-  </body><!-- 
-<style is:global>
-  :root {
-    --accent: 136, 58, 234;
-    --accent-light: 224, 204, 250;
-    --accent-dark: 49, 10, 101;
-    --accent-gradient: linear-gradient(
-      45deg,
-      rgb(var(--accent)),
-      rgb(var(--accent-light)) 30%,
-      white 60%
-    );
-  }
-  html {
-    font-family: system-ui, sans-serif;
-    background: #13151a;
-    background-size: 224px;
-  }
-  code {
-    font-family:
-      Menlo,
-      Monaco,
-      Lucida Console,
-      Liberation Mono,
-      DejaVu Sans Mono,
-      Bitstream Vera Sans Mono,
-      Courier New,
-      monospace;
-  }
-</style> -->
+  </body>
 </html>
